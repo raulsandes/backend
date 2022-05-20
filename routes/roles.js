@@ -1,0 +1,71 @@
+'use strict';
+
+const _       = require('lodash');
+const db      = require('../db.js');
+const express = require('express');
+const router  = express.Router();
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+const tableName = 'auth.roles';
+const idAttribute = 'role_id';
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+router.get('/', function(req, res, next){
+    db(tableName)
+        .select()
+        .where(req.query || {})
+        .then ( out => res.status(200).jsonp(out) )
+        .catch( err => res.status(404).jsonp(err) );
+});
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+router.post('/', function(req, res, next){
+    db(tableName)
+        .insert(req.body)
+        .returning('*')
+        .then ( out => res.status(200).jsonp(out) )
+        .catch( err => res.status(404).jsonp(err) );
+});
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+router.get(`/:${idAttribute}`, function(req, res, next){
+    db(tableName)
+        .first()
+        .where(req.params)
+        .then ( out => {
+            out.scopes = out.scopes.join(' ');
+            res.status(200).jsonp(out);
+        })
+        .catch( err => res.status(404).jsonp(err) );
+});
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+router.delete(`/:${idAttribute}`, function(req, res, next){
+    db(tableName)
+        .del()
+        .where(req.params)
+        .returning('*')
+        .then ( out => res.status(200).jsonp(out) )
+        .catch( err => res.status(404).jsonp(err) );
+});
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+router.patch(`/:${idAttribute}`, function(req, res, next){
+    req.body.scopes = req.body.scopes.split(' ');
+    db(tableName)
+        .update(req.body, { patch: true })
+        .where(req.params)
+        .returning('*')
+        .then ( out => res.status(200).jsonp(out) )
+        .catch( err => res.status(404).jsonp(err) );
+});
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+module.exports = router;
