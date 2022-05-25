@@ -32,13 +32,26 @@ router.get('/:user_id', function(req, res, next){
         .first()
         .where(req.params)
         .then ( user => {
-            db('auth.endpoints')
+            const ep = db('auth.endpoints')
                 .select()
-                .where(req.params)
-                .then ( endpoints => {
+                .where(req.params);
+
+            const st = db('auth.staff')
+                .select()
+                .where(req.params);
+
+            const ag = db('auth.assignments')
+                .select()
+                .where(req.params);
+
+            Promise.all([ep, st, ag])
+                .then([endpoints, staff, assigns]) => {
                     user.endpoints = endpoints;
-                    res.status(200).jsonp(user)
-                })
+                    user.assigns   = assigns;
+                    user.staff     = staff;
+                    res.status(200).jsonp(user);
+                }
+
         })
         .catch( err => res.status(404).jsonp(err) );
 });

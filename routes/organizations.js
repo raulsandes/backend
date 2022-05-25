@@ -64,6 +64,8 @@ router.patch('/:organization_id', function(req, res, next){
 router.get('/:organization_id/assignments', function(req, res, next){
     db('auth.assignments')
         .select()
+        .join ('auth.users', 'assignments.user_id', 'users.user_id')
+        .join ('auth.roles', 'assignments.role_id', 'roles.role_id')
         .where(req.params)
         .then ( out => res.status(200).jsonp(out) )
         .catch( err => res.status(404).jsonp(err) );
@@ -73,7 +75,7 @@ router.get('/:organization_id/assignments', function(req, res, next){
 ///////////////////////////////////////////////////////////////////////////////
 router.post('/:organization_id/assignments', function(req, res, next){
     db('auth.assignments')
-        .insert(req.body)
+        .insert({ ...req.body, ...req.params })
         .returning('*')
         .then ( out => res.status(200).jsonp(out) )
         .catch( err => res.status(404).jsonp(err) );
@@ -103,5 +105,56 @@ router.patch('/:organization_id/assignments/:assign_id', function(req, res, next
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+router.get('/:organization_id/staff', function(req, res, next){
+    db('auth.staff')
+        .select()
+        .join ('auth.staff', 'staff.user_id', 'users.user_id')
+        .where(req.params)
+        .then ( out => res.status(200).jsonp(out) )
+        .catch( err => res.status(404).jsonp(err) );
+});
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+router.patch('/:organization_id/staff/:user_id', function(req, res, next){
+    db('auth.staff')
+        .update(req.body)
+        .where(req.params)
+        .returning('*')
+        .then ( out => res.status(200).jsonp(out) )
+        .catch( err => res.status(404).jsonp(err) );
+});
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+router.get('/:organization_id/licenses', function(req, res, next){
+    db('auth.licenses')
+        .select()
+        .join ('auth.apps', 'apps.app_id', 'licenses.app_id')
+        .where(req.params)
+        .then ( out => res.status(200).jsonp(out) )
+        .catch( err => res.status(404).jsonp(err) );
+});
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+router.post('/:organization_id/licenses/', function(req, res, next){
+    db('auth.staff')
+        .insert(req.body)
+        .returning('*')
+        .then ( out => res.status(200).jsonp(out) )
+        .catch( err => res.status(404).jsonp(err) );
+});
+
 
 module.exports = router;
