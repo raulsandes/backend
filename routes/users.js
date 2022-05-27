@@ -45,12 +45,12 @@ router.get('/:user_id', function (req, res, next) {
                 .where(req.params);
 
             Promise.all([ep, st, ag])
-                .then([endpoints, staff, assigns]) => {
+                .then(([endpoints, staff, assigns]) => {
                     user.endpoints = endpoints;
                     user.assigns   = assigns;
                     user.staff     = staff;
                     res.status(200).jsonp(user);
-                }
+                })
 
         })
         .catch( err => res.status(404).jsonp(err) );

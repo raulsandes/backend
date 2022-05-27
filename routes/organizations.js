@@ -112,7 +112,7 @@ router.patch('/:organization_id/assignments/:assign_id', function(req, res, next
 router.get('/:organization_id/staff', function(req, res, next){
     db('auth.staff')
         .select()
-        .join ('auth.staff', 'staff.user_id', 'users.user_id')
+        .join ('auth.users', 'staff.user_id', 'users.user_id')
         .where(req.params)
         .then ( out => res.status(200).jsonp(out) )
         .catch( err => res.status(404).jsonp(err) );
@@ -120,9 +120,18 @@ router.get('/:organization_id/staff', function(req, res, next){
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-router.patch('/:organization_id/staff/:user_id', function(req, res, next){
+router.patch('/:organization_id/staff/:staff_id', function(req, res, next){
     db('auth.staff')
-        .update(req.body)
+        .update(req.body, { patch: true })
+        .where(req.params)
+        .returning('*')
+        .then ( out => res.status(200).jsonp(out) )
+        .catch( err => res.status(404).jsonp(err) );
+});
+
+router.delete('/:organization_id/staff/:staff_id', function(req, res, next){
+    db('auth.staff')
+        .del()
         .where(req.params)
         .returning('*')
         .then ( out => res.status(200).jsonp(out) )
