@@ -158,7 +158,7 @@ router.get('/:organization_id/licenses', function(req, res, next){
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 router.post('/:organization_id/licenses/', function(req, res, next){
-    db('auth.staff')
+    db('auth.licenses')
         .insert(req.body)
         .returning('*')
         .then ( out => res.status(200).jsonp(out) )
